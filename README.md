@@ -1,1 +1,3 @@
-# ossm-patterns
+# OpenShift Service Mesh Patterns
+
+Work in progress...
