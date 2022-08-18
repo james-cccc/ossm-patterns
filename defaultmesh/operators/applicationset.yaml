@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ossm-operators
+  namespace: openshift-gitops
+spec:
+  generators:
+    - list:
+        elements:
+          - operator: elasticsearch-operator
+            overlay: stable
+          - operator: kiali-operator
+            overlay: stable
+          - operator: openshift-distributed-tracing-operator
+            overlay: stable
+          - operator: openshift-servicemesh-operator
+            overlay: stable
+  template:
+    metadata:
+      name: '{{operator}}'
+    spec:
+      destination:
+        namespace: openshift-gitops
+        server: https://kubernetes.default.svc
+      project: default
+      source:
+        path: 'defaultmesh/operators/{{operator}}/overlays/{{overlay}}'
+        repoURL: https://github.com/james-cccc/ossm-patterns.git
+        targetRevision: HEAD
+      syncPolicy:
+        automated:
+          selfHeal: true
