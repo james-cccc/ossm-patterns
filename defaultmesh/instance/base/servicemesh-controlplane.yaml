@@ -1,14 +1,80 @@
 apiVersion: maistra.io/v2
 kind: ServiceMeshControlPlane
 metadata:
-  name: istio-system
+  name: basic
+  namespace: istio-system
 spec:
-  tracing:
-    sampling: 10000
-    type: Jaeger
   gateways:
+    enabled: true
+    egress:
+      enabled: false
+      service: {}
+    ingress:
+      enabled: false
+      service: {}
     openshiftRoute:
       enabled: true
+    additionalEgress:
+      vs1egw01:
+        enabled: true
+        namespace: vs1
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: true
+            replicas: 3
+    additionalIngress:
+      vs1igw01:
+        enabled: true
+        namespace: vs1
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: true
+              replicas: 3
+  runtime:
+    components:
+      pilot:
+        container:
+          env:
+            PILOT_SCOPE_GATEWAY_TO_NAMESPACE: "true"
+  security:
+    controlPlane:
+      mtls: true
+      tls:
+        cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        ecdhCurves:
+        - X25519
+        maxProtocolVersion: TLSv1_3
+        minProtocolVersion: TLSv1_2
+    dataPlane:
+      automtls: true
+      mtls: true
+    identity:
+      type: Kubernetes
+  tracing:
+    type: Jaeger
+    sampling: 10000
   policy:
     type: Istiod
   addons:
@@ -22,6 +88,6 @@ spec:
       enabled: true
     prometheus:
       enabled: true
-  version: v2.2
   telemetry:
     type: Istiod
+  version: v2.2
