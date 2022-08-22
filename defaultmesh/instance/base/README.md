@@ -48,5 +48,5 @@ It's recommended to disable **IOR** *(ior = Istio + OpenShift Routing)* and inst
 To disable IOR set the following parameter in the SMCP.
 ```yaml
 openshiftRoute:
-  enabled: true
+  enabled: false
 ```
