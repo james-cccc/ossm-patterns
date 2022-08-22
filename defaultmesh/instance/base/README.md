@@ -50,3 +50,7 @@ To disable IOR set the following parameter in the SMCP.
 openshiftRoute:
   enabled: false
 ```
+
+# Future Considerations
+
+* [OSSM-898 - Cluster Wide Mesh](https://issues.redhat.com/browse/OSSM-898)
