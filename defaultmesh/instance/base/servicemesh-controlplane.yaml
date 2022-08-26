@@ -29,8 +29,24 @@ spec:
                 memory: 128Mi
           deployment:
             autoScaling:
-              enabled: true
-            replicas: 3
+              enabled: false
+            replicas: 2
+      vs2egw01:
+        enabled: true
+        namespace: vs2
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: false
+            replicas: 2
     additionalIngress:
       vs1igw01:
         enabled: true
@@ -47,7 +63,25 @@ spec:
           deployment:
             autoScaling:
               enabled: true
-              replicas: 3
+              maxReplicas: 5
+              minReplicas: 2
+      vs2igw01:
+        enabled: true
+        namespace: vs2
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: true
+              maxReplicas: 5
+              minReplicas: 2
   runtime:
     components:
       pilot:
