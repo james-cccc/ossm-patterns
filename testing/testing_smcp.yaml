@@ -1,0 +1,118 @@
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: basic
+  namespace: istio-system
+spec:
+  addons:
+    grafana:
+      enabled: true
+    jaeger:
+      install:
+        storage:
+          type: Memory
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+  gateways:
+    additionalEgress:
+      vs1egw01:
+        enabled: true
+        namespace: vs1
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: false
+            replicas: 2
+    additionalIngress:
+      vs1igw01:
+        enabled: true
+        namespace: vs1
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: true
+              maxReplicas: 5
+              minReplicas: 2
+      zvs2igw03:
+        enabled: true
+        namespace: vs2
+        runtime:
+          container:
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          deployment:
+            autoScaling:
+              enabled: true
+              maxReplicas: 5
+              minReplicas: 2
+    egress:
+      enabled: false
+      service: {}
+    enabled: true
+    ingress:
+      enabled: false
+      service: {}
+    openshiftRoute:
+      enabled: false
+  policy:
+    type: Istiod
+  profiles:
+    - default
+  runtime:
+    components:
+      pilot:
+        container:
+          env:
+            PILOT_ENABLE_DESTINATION_RULE_INHERITANCE: 'true'
+            PILOT_FILTER_GATEWAY_CLUSTER_CONFIG: 'true'
+            PILOT_SCOPE_GATEWAY_TO_NAMESPACE: 'true'
+            VERIFY_CERTIFICATE_AT_CLIENT: 'true'
+  security:
+    controlPlane:
+      mtls: true
+      tls:
+        cipherSuites:
+          - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+          - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+          - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+          - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        ecdhCurves:
+          - X25519
+          - CurveP256
+        maxProtocolVersion: TLSv1_3
+        minProtocolVersion: TLSv1_2
+    dataPlane:
+      automtls: true
+      mtls: true
+    identity:
+      type: ThirdParty
+    manageNetworkPolicy: true
+  telemetry:
+    type: Istiod
+  tracing:
+    sampling: 10000
+    type: Jaeger
+  version: v2.2

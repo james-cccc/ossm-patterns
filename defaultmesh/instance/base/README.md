@@ -51,6 +51,25 @@ openshiftRoute:
   enabled: false
 ```
 
+## Restrict outbound traffic
+
+[istio.io - Accessing External Services](https://istio.io/latest/docs/tasks/traffic-management/egress/egress-control/) "Because all outbound traffic from an Istio-enabled pod is redirected to its sidecar proxy by default, accessibility of URLs outside of the cluster depends on the configuration of the proxy. By default, Istio configures the Envoy proxy to pass through requests for unknown services. Although this provides a convenient way to get started with Istio, configuring stricter control is usually preferable."
+
+[access.redhat.com - How to change outboundTrafficPolicy to REGISTRY_ONLY in ServiceMesh in OCP 4](https://access.redhat.com/solutions/5355951)
+
+To set the outbound traffic policy to be the registry only:
+```yaml
+proxy:
+  networking:
+    trafficControl:
+      outbound:
+        policy: REGISTRY_ONLY
+```
+
+
+
+
+
 # Future Considerations
 
 * [OSSM-898 - Cluster Wide Mesh](https://issues.redhat.com/browse/OSSM-898)
