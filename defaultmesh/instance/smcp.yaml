@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: smcp
+  namespace: openshift-gitops
+operation:
+  initiatedBy:
+    automated: true
+  retry:
+    limit: 5
+  sync:
+    revision: 1a5b377f7defd7084bb376655d1556ffc5fced00
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: defaultmesh/instance/base
+    repoURL: https://github.com/james-cccc/ossm-productionisation-considerations
+    targetRevision: HEAD
