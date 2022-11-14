@@ -1,0 +1,59 @@
+apiVersion: maistra.io/v2
+kind: ServiceMeshControlPlane
+metadata:
+  name: basic
+  namespace: istio-system
+spec:
+  gateways:
+    enabled: true
+    egress:
+      enabled: false
+      service: {}
+    ingress:
+      enabled: false
+      service: {}
+    openshiftRoute:
+      enabled: true
+  runtime:
+    components:
+      pilot:
+        container:
+          env:
+            PILOT_SCOPE_GATEWAY_TO_NAMESPACE: "true"
+  security:
+    controlPlane:
+      mtls: true
+      tls:
+        cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        ecdhCurves:
+        - X25519
+        maxProtocolVersion: TLSv1_3
+        minProtocolVersion: TLSv1_2
+    dataPlane:
+      automtls: true
+      mtls: true
+    identity:
+      type: Kubernetes
+  tracing:
+    type: Jaeger
+    sampling: 10000
+  policy:
+    type: Istiod
+  addons:
+    grafana:
+      enabled: true
+    jaeger:
+      install:
+        storage:
+          type: Memory
+    kiali:
+      enabled: true
+    prometheus:
+      enabled: true
+  telemetry:
+    type: Istiod
+  version: v2.2
