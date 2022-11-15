@@ -57,6 +57,44 @@ spec:
       - name: istio-proxy
         image: auto # The image will automatically update each time the pod starts.
 ---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app: vs2igw
+    istio: ingressgateway
+    release: istio
+  name: vs2igw
+  namespace: vs2
+spec:
+  maxReplicas: 5
+  metrics:
+  - resource:
+      name: cpu
+      target:
+        averageUtilization: 80
+        type: Utilization
+    type: Resource
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vs2igw
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vs2igw
+  namespace: vs2
+spec:
+  podSelector:
+    matchLabels:
+      istio: ingressgateway
+  ingress:
+    - {}
+  policyTypes:
+  - Ingress
+---
 # Set up roles to allow reading credentials for TLS
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -80,17 +118,3 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: default
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: vs2igw
-  namespace: vs2
-spec:
-  podSelector:
-    matchLabels:
-      istio: ingressgateway
-  ingress:
-    - {}
-  policyTypes:
-  - Ingress
