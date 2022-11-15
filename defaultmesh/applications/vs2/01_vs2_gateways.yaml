@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vs2igw
+  namespace: vs2
+  labels:                                     
+    app: vs2igw
+    app.kubernetes.io/instance: istio-system
+    app.kubernetes.io/name: istio-ingress
+    app.kubernetes.io/part-of: istio
+    istio: ingressgateway
+    release: istio
+spec:
+  ports:
+    - name: status-port
+      protocol: TCP
+      port: 15021
+      targetPort: 15021
+    - name: http2
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8443
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  selector:
+    istio: ingressgateway
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vs2igw
+  namespace: vs2
+  labels:
+    app: vs2igw
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      istio: ingressgateway
+  template:
+    metadata:
+      annotations:
+        # Select the gateway injection template (rather than the default sidecar template)
+        inject.istio.io/templates: gateway
+      labels:
+        # Set a unique label for the gateway. This is required to ensure Gateways can select this workload
+        istio: ingressgateway
+        # Enable gateway injection. If connecting to a revisioned control plane, replace with "istio.io/rev: revision-name"
+        sidecar.istio.io/inject: "true"
+        app: vs2igw
+    spec:
+      containers:
+      - name: istio-proxy
+        image: auto # The image will automatically update each time the pod starts.
+---
+# Set up roles to allow reading credentials for TLS
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vs2-gateway-sds
+  namespace: vs2
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vs2-gateway-sds
+  namespace: vs2
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vs2-gateway-sds
+subjects:
+- kind: ServiceAccount
+  name: default
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: vs2igw
+  namespace: vs2
+spec:
+  podSelector:
+    matchLabels:
+      istio: ingressgateway
+  ingress:
+    - {}
+  policyTypes:
+  - Ingress

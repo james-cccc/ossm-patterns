@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    maistra.io/gateway-name: vs2-bookinfo-gateway
+    maistra.io/gateway-namespace: vs2
+  name: vs2-bookinfo-gateway
+  namespace: vs2
+spec:
+  host: vs2-bookinfo-gateway.apps.cluster-pfw8p.dynamic.opentlc.com
+  port:
+    targetPort: http2
+  to:
+    kind: Service
+    name: vs2igw
+    weight: 100
+  wildcardPolicy: None
