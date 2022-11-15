@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: vs2igw
   namespace: vs2
-  labels:                                     
+  labels:
     app: vs2igw
     app.kubernetes.io/instance: istio-system
     app.kubernetes.io/name: istio-ingress
@@ -80,6 +80,22 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: vs2igw
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  labels:
+    app: vs2igw
+    istio: ingressgateway
+    release: istio
+  name: vs2igw
+  namespace: vs2
+spec:
+  minAvailable: 1 # https://istio.io/latest/docs/setup/additional-setup/gateway/#deploying-a-gateway
+  selector:
+    matchLabels:
+      app: vs2igw
+      istio: ingressgateway
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
