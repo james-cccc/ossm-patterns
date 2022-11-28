@@ -56,6 +56,13 @@ spec:
       containers:
       - name: istio-proxy
         image: auto # The image will automatically update each time the pod starts.
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 1024Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
